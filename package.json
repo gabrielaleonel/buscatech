@@ -1,0 +1,22 @@
+{
+  "name": "@gabrielaleonel/buscatech",
+  "version": "1.0.0",
+  "description": "Ferramenta para pesquisar vagas de estágio em tecnologia na Gupy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["gupy", "estagio", "tecnologia", "vagas", "jobs"],
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielaleonel/buscatech.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gabrielaleonel/buscatech/issues"
+  },
+  "homepage": "https://github.com/gabrielaleonel/buscatech#readme"
+}
