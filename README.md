@@ -2,6 +2,8 @@
 
 Ferramenta para pesquisar vagas de **estágio em tecnologia** na plataforma Gupy.
 
+![Buscatech](banner.png)
+
 ## Como usar
 
 ```bash
