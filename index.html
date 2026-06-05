@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscatech - Vagas de Estágio em Tecnologia (Gupy)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5; color: #1a1a2e; padding: 20px; min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .header h1 { font-size: 1.5rem; font-weight: 700; }
+    .header p { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+    /* Cards */
+    .card {
+      background: #fff; border-radius: 10px; padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: #333; }
+
+    /* Keywords */
+    #keywordsInput {
+      width: 100%; min-height: 80px; padding: 10px 12px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 0.85rem; font-family: inherit; resize: vertical;
+      line-height: 1.5;
+    }
+    #keywordsInput:focus { outline: none; border-color: #4361ee; box-shadow: 0 0 0 2px rgba(67,97,238,0.15); }
+
+    /* Controls */
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .btn {
+      padding: 8px 20px; border: none; border-radius: 6px; font-size: 0.85rem;
+      font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex;
+      align-items: center; gap: 6px;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #4361ee; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #3651d4; }
+    .btn-warning { background: #f59e0b; color: #fff; }
+    .btn-warning:hover:not(:disabled) { background: #d97706; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #059669; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover:not(:disabled) { background: #dc2626; }
+    .btn-outline { background: transparent; color: #4361ee; border: 1px solid #4361ee; }
+    .btn-outline:hover:not(:disabled) { background: #4361ee; color: #fff; }
+
+    /* Status */
+    .status-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin: 8px 0;
+    }
+    .stat-item {
+      background: #f8f9fa; border-radius: 8px; padding: 14px 16px; text-align: center;
+    }
+    .stat-item .value { font-size: 1.6rem; font-weight: 700; color: #1a1a2e; line-height: 1.2; }
+    .stat-item .label { font-size: 0.75rem; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .stat-item.status-current { background: #eef2ff; }
+    .stat-item.status-current .value { color: #4361ee; }
+    .stat-item.approved .value { color: #10b981; }
+    .stat-item.ignored .value { color: #6b7280; }
+    .stat-item.duplicated .value { color: #f59e0b; }
+    .stat-item.review .value { color: #8b5cf6; }
+
+    .current-keyword {
+      font-size: 0.85rem; color: #4361ee; font-weight: 500; padding: 8px 0 4px;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px;
+      margin: 8px 0; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; background: linear-gradient(90deg, #4361ee, #3b82f6);
+      border-radius: 3px; transition: width 0.4s ease; width: 0%;
+    }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb; margin-bottom: 16px; }
+    .tab {
+      padding: 10px 20px; cursor: pointer; border: none; background: none;
+      font-size: 0.85rem; font-weight: 500; color: #666; transition: all 0.2s;
+      position: relative; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .tab:hover { color: #333; }
+    .tab.active { color: #4361ee; border-bottom-color: #4361ee; }
+    .tab .count {
+      display: inline-block; background: #e5e7eb; border-radius: 10px;
+      padding: 0 8px; font-size: 0.7rem; margin-left: 4px; line-height: 1.6;
+    }
+    .tab.active .count { background: #eef2ff; color: #4361ee; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead { background: #f8f9fa; }
+    th { padding: 10px 12px; text-align: left; font-weight: 600; color: #555; white-space: nowrap; border-bottom: 2px solid #e5e7eb; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    tr:hover td { background: #fafbff; }
+    .job-link { color: #4361ee; text-decoration: none; font-weight: 500; word-break: break-all; }
+    .job-link:hover { text-decoration: underline; }
+    a:visited { color: purple; }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 500;
+    }
+    .tag-internship { background: #dbeafe; color: #1d4ed8; }
+    .tag-tech { background: #d1fae5; color: #047857; }
+    .tag-both { background: #ede9fe; color: #6d28d9; }
+    .tag-ignored { background: #f3f4f6; color: #6b7280; }
+    .reason-text { font-size: 0.75rem; color: #888; max-width: 200px; }
+    .time-col { white-space: nowrap; font-size: 0.75rem; color: #888; }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 40px 20px; color: #999; font-size: 0.9rem; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { padding: 12px; }
+      .header { padding: 16px 20px; }
+      .header h1 { font-size: 1.2rem; }
+      .card { padding: 14px 16px; }
+      .status-grid { grid-template-columns: repeat(3, 1fr); }
+      .controls { flex-direction: column; }
+      .controls .btn { width: 100%; justify-content: center; }
+    }
+
+    /* Scrollable log */
+    .log-area {
+      max-height: 150px; overflow-y: auto; background: #f8f9fa;
+      border-radius: 6px; padding: 10px 12px; font-size: 0.78rem;
+      font-family: 'Courier New', monospace; line-height: 1.6; margin-top: 8px;
+      color: #444;
+    }
+    .log-area .log-entry { border-bottom: 1px solid #f0f0f0; padding: 2px 0; }
+    .log-area .log-entry:last-child { border-bottom: none; }
+    .log-area .log-time { color: #999; margin-right: 6px; }
+    .log-area .log-error { color: #ef4444; }
+    .log-area .log-success { color: #10b981; }
+    .log-area .log-info { color: #4361ee; }
+    .log-area .log-warn { color: #f59e0b; }
+  </style>
+</head>
+<body>
+<div class="container" id="app">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Buscatech</h1>
+      <p>Pesquisador de vagas de estágio em tecnologia na Gupy</p>
+    </div>
+    <button class="btn btn-outline" onclick="app.exportCSV()" id="exportBtn" disabled>
+      Exportar CSV
+    </button>
+  </div>
+
+  <!-- Keywords -->
+  <div class="card">
+    <div class="card-title">Palavras-chave (uma por linha)</div>
+    <textarea id="keywordsInput" placeholder="Digite uma palavra-chave por linha..."></textarea>
+  </div>
+
+  <!-- Controls -->
+  <div class="card">
+    <div class="controls" id="controls">
+      <button class="btn btn-primary" onclick="app.startSearch()" id="btnStart">Iniciar busca</button>
+      <button class="btn btn-warning" onclick="app.pauseSearch()" id="btnPause" disabled>Pausar busca</button>
+      <button class="btn btn-success" onclick="app.continueSearch()" id="btnContinue" disabled>Continuar busca</button>
+      <button class="btn btn-danger" onclick="app.stopSearch()" id="btnStop" disabled>Parar busca</button>
+      <button class="btn btn-outline" onclick="app.clearAll()" id="btnClear">Limpar dados</button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="card" id="statusCard">
+    <div class="card-title">Status da busca</div>
+    <div class="current-keyword" id="currentKeyword">Aguardando início...</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status-grid">
+      <div class="stat-item status-current">
+        <div class="value" id="statKeywordIdx">0/0</div>
+        <div class="label">Palavra-chave</div>
+      </div>
+      <div class="stat-item">
+        <div class="value" id="statFound">0</div>
+        <div class="label">Encontradas</div>
+      </div>
+      <div class="stat-item approved">
+        <div class="value" id="statApproved">0</div>
+        <div class="label">Aprovadas</div>
+      </div>
+      <div class="stat-item ignored">
+        <div class="value" id="statIgnored">0</div>
+        <div class="label">Ignoradas</div>
+      </div>
+      <div class="stat-item duplicated">
+        <div class="value" id="statDuplicated">0</div>
+        <div class="label">Duplicadas</div>
+      </div>
+      <div class="stat-item review">
+        <div class="value" id="statReview">0</div>
+        <div class="label">Revisar</div>
+      </div>
+    </div>
+    <div class="log-area" id="logArea"></div>
+  </div>
+
+  <!-- Results tabs -->
+  <div class="card">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="approved" onclick="app.switchTab('approved')">
+        Aprovadas <span class="count" id="tabCountApproved">0</span>
+      </button>
+      <button class="tab" data-tab="ignored" onclick="app.switchTab('ignored')">
+        Ignoradas <span class="count" id="tabCountIgnored">0</span>
+      </button>
+      <button class="tab" data-tab="duplicated" onclick="app.switchTab('duplicated')">
+        Duplicadas <span class="count" id="tabCountDuplicated">0</span>
+      </button>
+      <button class="tab" data-tab="review" onclick="app.switchTab('review')">
+        Revisar <span class="count" id="tabCountReview">0</span>
+      </button>
+    </div>
+
+    <!-- Approved -->
+    <div class="tab-panel active" id="panel-approved">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vaga</th>
+              <th>Empresa</th>
+              <th>Local / Modalidade</th>
+              <th>Link</th>
+              <th>Palavra-chave</th>
+              <th>Data/Hora</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyApproved"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="emptyApproved">Nenhuma vaga aprovada ainda.</div>
+    </div>
+
+    <!-- Ignored -->
+    <div class="tab-panel" id="panel-ignored">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vaga</th>
+              <th>Empresa</th>
+              <th>Motivo</th>
+              <th>Link</th>
+              <th>Palavra-chave</th>
+              <th>Data/Hora</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyIgnored"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="emptyIgnored">Nenhuma vaga ignorada.</div>
+    </div>
+
+    <!-- Duplicated -->
+    <div class="tab-panel" id="panel-duplicated">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vaga</th>
+              <th>Empresa</th>
+              <th>Link</th>
+              <th>Palavra-chave</th>
+              <th>Data/Hora</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyDuplicated"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="emptyDuplicated">Nenhuma vaga duplicada.</div>
+    </div>
+
+    <!-- Review -->
+    <div class="tab-panel" id="panel-review">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vaga</th>
+              <th>Empresa</th>
+              <th>Dúvida</th>
+              <th>Link</th>
+              <th>Palavra-chave</th>
+              <th>Data/Hora</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyReview"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="emptyReview">Nenhuma vaga para revisão.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  Buscatech - Main Application
+//  Pesquisa vagas na Gupy usando API pública e filtra
+//  estágios em tecnologia.
+// ============================================================
+
+const API_BASE = '/api/proxy';
+const RESULTS_PER_PAGE = 100;
+const DELAY_MS = 800;
+const STORAGE_KEY = 'buscatech_data_v2';
+
+const INTERN_KEYWORDS = [
+  'estágio', 'estagio', 'estagiário', 'estagiaria', 'estagiario',
+  'estagiário(a)', 'estagiária',
+  'programa de estágio', 'programa de estagio',
+  'intern', 'internship'
+];
+
+const TECH_KEYWORDS = [
+  'tecnologia', 'ti', 'tech',
+  'desenvolvimento', 'desenvolvedor', 'desenvolvedora',
+  'software', 'sistemas',
+  'dados', 'data', 'analytics', 'bi',
+  'ciência de dados', 'cientista de dados', 'engenharia de dados',
+  'programação', 'programador', 'programadora',
+  'front-end', 'frontend', 'backend', 'back-end', 'full stack', 'fullstack',
+  'qa', 'testes', 'qualidade de software', 'automação de testes',
+  'cloud', 'devops', 'sre',
+  'infraestrutura', 'infra',
+  'suporte técnico', 'help desk', 'service desk', 'suporte de ti',
+  'segurança da informação', 'cibersegurança', 'cyber', 'soc',
+  'banco de dados', 'sql', 'dba',
+  'produto digital', 'produto',
+  'ux', 'ui', 'ux/ui',
+  'geneXus', 'workwithplus', 'low-code', 'lowcode',
+  'erp', 'corporativos',
+  'java', 'python', '.net', 'javascript', 'typescript', 'node',
+  'linux', 'noc',
+  'gestão de vulnerabilidades', 'governança de ti', 'grc',
+  'compliance em segurança', 'blue team', 'cyber defense',
+  'implantação de sistemas', 'sustentação de sistemas',
+  'data quality', 'relatórios', 'field support',
+  'monitoramento',
+  'engenharia de software'
+];
+
+// Palavras que indicam NÃO ser estágio
+const EXCLUDE_TYPES = [
+  'jovem aprendiz', 'aprendiz', 'trainee',
+  'efetivo', 'clt', 'registrado',
+  'banco de talentos', 'talent pool', 'talent_pool'
+];
+
+// ============================================================
+//  Utility functions
+// ============================================================
+
+function stripHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeText(text) {
+  return text.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+function formatDateTime(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', year: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function getJobId(job) {
+  return job.id;
+}
+
+function getLocation(job) {
+  if (job.isRemoteWork) return 'Remoto';
+  if (job.workplaceType === 'remote') return 'Remoto';
+  const parts = [];
+  if (job.city) parts.push(job.city);
+  if (job.state) parts.push(job.state);
+  if (parts.length === 0 && job.workplaceType === 'hybrid') return 'Híbrido';
+  if (parts.length === 0 && job.workplaceType === 'on-site') return 'Presencial';
+  return parts.join(', ') || (job.country || '');
+}
+
+function getWorkplaceLabel(job) {
+  const loc = getLocation(job);
+  if (job.isRemoteWork) return loc + ' (Remoto)';
+  if (job.workplaceType === 'remote') return 'Remoto';
+  if (job.workplaceType === 'hybrid') return 'Híbrido - ' + loc;
+  if (job.workplaceType === 'on-site') return 'Presencial - ' + loc;
+  return loc;
+}
+
+// ============================================================
+//  Filtering Logic
+// ============================================================
+
+function containsAny(text, keywords) {
+  const lower = text.toLowerCase();
+  const norm = normalizeText(text);
+  for (const kw of keywords) {
+    if (lower.includes(kw)) return true;
+    const kwNorm = normalizeText(kw);
+    if (norm.includes(kwNorm)) return true;
+  }
+  return false;
+}
+
+function isInternship(job) {
+  if (job.type === 'vacancy_type_internship') return true;
+
+  const nameNorm = normalizeText(job.name);
+  const descNorm = normalizeText(stripHtml(job.description || ''));
+
+  const hasInternshipName = INTERN_KEYWORDS.some(kw => {
+    const kwNorm = normalizeText(kw);
+    return nameNorm.includes(kwNorm);
+  });
+
+  const hasInternshipDesc = INTERN_KEYWORDS.some(kw => {
+    const kwNorm = normalizeText(kw);
+    return descNorm.includes(kwNorm);
+  });
+
+  return hasInternshipName || hasInternshipDesc;
+}
+
+function isTech(job) {
+  const nameNorm = normalizeText(job.name);
+  const descNorm = normalizeText(stripHtml(job.description || ''));
+
+  const hasTechName = TECH_KEYWORDS.some(kw => {
+    const kwNorm = normalizeText(kw);
+    return nameNorm.includes(kwNorm);
+  });
+
+  const hasTechDesc = TECH_KEYWORDS.some(kw => {
+    const kwNorm = normalizeText(kw);
+    return descNorm.includes(kwNorm);
+  });
+
+  return hasTechName || hasTechDesc;
+}
+
+function isExcluded(job) {
+  const nameNorm = normalizeText(job.name);
+  const descNorm = normalizeText(stripHtml(job.description || ''));
+
+  const isExplicitExclude = EXCLUDE_TYPES.some(kw => {
+    const kwNorm = normalizeText(kw);
+    return nameNorm.includes(kwNorm) || descNorm.includes(kwNorm);
+  });
+
+  if (!isExplicitExclude) return false;
+
+  const hasInternship = isInternship(job);
+  const hasTech = isTech(job);
+
+  if (hasInternship && hasTech) {
+    const nameLower = job.name.toLowerCase();
+    const talentPoolIndicators = ['banco de talentos', 'talent pool'];
+    const isTalentPool = talentPoolIndicators.some(t => nameLower.includes(t));
+    if (isTalentPool && hasTech) return false;
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Classifica uma vaga:
+ *   'approved'   → estágio + tecnologia
+ *   'ignored'    → não atende
+ *   'review'     → dúvida (ambíguo)
+ *   'duplicated' → já vista (definido externamente)
+ */
+function classifyJob(job) {
+  const internship = isInternship(job);
+  const tech = isTech(job);
+  const excluded = isExcluded(job);
+
+  if (!internship) {
+    return { verdict: 'ignored', reason: 'Não parece ser vaga de estágio' };
+  }
+
+  if (!tech) {
+    return { verdict: 'ignored', reason: 'Não parece ser vaga de tecnologia' };
+  }
+
+  if (excluded) {
+    return { verdict: 'ignored', reason: 'Vaga excluída (jovem aprendiz, efetivo, etc.)' };
+  }
+
+  const nameNorm = normalizeText(job.name);
+  const descNorm = normalizeText(stripHtml(job.description || ''));
+
+  const strongInternship = internship;
+  const strongTech = tech;
+
+  if (strongInternship && strongTech) {
+    return { verdict: 'approved', reason: 'Estágio em tecnologia confirmado' };
+  }
+
+  if (internship && tech) {
+    return { verdict: 'approved', reason: 'Estágio em tecnologia' };
+  }
+
+  return { verdict: 'review', reason: 'Ambíguo — verificar manualmente' };
+}
+
+// ============================================================
+//  Deduplication
+// ============================================================
+
+function makeDedupKey(job) {
+  return `${getJobId(job)}`;
+}
+
+function makeDedupLinkKey(job) {
+  return job.jobUrl || '';
+}
+
+// ============================================================
+//  Application State
+// ============================================================
+
+const defaultKeywords = [
+  'estágio TI',
+  'estágio desenvolvimento',
+  'estágio suporte',
+  'estágio dados',
+  'estágio QA',
+  'estágio cloud',
+  'estágio segurança',
+  'estágio infraestrutura',
+  'estagiária de TI',
+  'estagiária Service Desk',
+  'estagiária Help Desk',
+  'estagiária de Suporte Técnico',
+  'estagiária de Desenvolvimento',
+  'estagiária Full Stack',
+  'estagiária Front-End',
+  'estagiária Back-End',
+  'estagiária Java',
+  'estagiária Python',
+  'estagiária .NET',
+  'estagiária de Dados',
+  'estagiária BI',
+  'estagiária Analytics',
+  'estagiária de Banco de Dados',
+  'estagiária SQL',
+  'estagiária QA',
+  'estagiária Quality Assurance',
+  'estagiária de Testes',
+  'estagiária de Cibersegurança',
+  'estagiária de Segurança da Informação',
+  'estagiária de Redes',
+  'estagiária de Infraestrutura',
+  'estagiária Cloud Computing',
+  'estagiária Linux',
+  'estagiária ERP',
+  'estagiária de Sistemas',
+  'estagiária de Sustentação de Sistemas',
+  'estagiária de Implantação de Sistemas',
+  'estágio desenvolvimento de software',
+  'estágio engenharia de software',
+  'estágio cibersegurança',
+  'suporte técnico estágio',
+  'help desk estágio',
+  'service desk estágio',
+  'infraestrutura estágio',
+  'estágio suporte técnico',
+  'programa de estágio TI',
+  'internship technology',
+  'internship desenvolvimento',
+  'internship software',
+  'internship data',
+  'internship QA'
+];
+
+class GupySearchApp {
+  constructor() {
+    this.state = {
+      keywords: [...defaultKeywords],
+      status: 'idle',
+      currentKeywordIdx: 0,
+      currentOffset: 0,
+      completedKeywords: [],
+      stats: { found: 0, approved: 0, ignored: 0, duplicated: 0, review: 0 },
+      approved: [],
+      ignored: [],
+      duplicated: [],
+      review: [],
+      visitedIds: new Set(),
+      visitedUrls: new Set(),
+      clickedLinks: new Set(),
+      seenIds: new Set()
+    };
+
+    this._running = false;
+    this._paused = false;
+    this._stopped = false;
+    this._abortController = null;
+
+    this.init();
+  }
+
+  init() {
+    this.loadState();
+    this.renderKeywords();
+    this.renderAll();
+    this.addLinkClickListener();
+    this.log('Pronto. Clique em "Iniciar busca" para começar.');
+  }
+
+  // ---- Persistence ----
+
+  saveState() {
+    try {
+      const data = {
+        ...this.state,
+        visitedIds: Array.from(this.state.visitedIds),
+        visitedUrls: Array.from(this.state.visitedUrls),
+        clickedLinks: Array.from(this.state.clickedLinks),
+        seenIds: Array.from(this.state.seenIds),
+        keywords: this.state.keywords,
+        _savedAt: Date.now()
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('Erro ao salvar estado:', e);
+    }
+  }
+
+  loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (!data || !data.keywords) return;
+
+      this.state.keywords = data.keywords || [...defaultKeywords];
+      this.state.status = 'idle';
+      this.state.currentKeywordIdx = 0;
+      this.state.currentOffset = 0;
+      this.state.completedKeywords = [];
+      this.state.stats = data.stats || { found: 0, approved: 0, ignored: 0, duplicated: 0, review: 0 };
+      this.state.approved = data.approved || [];
+      this.state.ignored = data.ignored || [];
+      this.state.duplicated = data.duplicated || [];
+      this.state.review = data.review || [];
+      this.state.visitedIds = new Set(data.visitedIds || []);
+      this.state.visitedUrls = new Set(data.visitedUrls || []);
+      this.state.clickedLinks = new Set(data.clickedLinks || []);
+      this.state.seenIds = new Set(data.seenIds || []);
+
+      this.log('Dados carregados do armazenamento local.');
+    } catch (e) {
+      console.warn('Erro ao carregar estado:', e);
+    }
+  }
+
+  // ---- Keywords UI ----
+
+  renderKeywords() {
+    document.getElementById('keywordsInput').value = this.state.keywords.join('\n');
+  }
+
+  getKeywordsFromUI() {
+    const raw = document.getElementById('keywordsInput').value;
+    return raw.split('\n')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+      .filter((v, i, a) => a.indexOf(v) === i);
+  }
+
+  // ---- Logging ----
+
+  log(message, type = 'info') {
+    const area = document.getElementById('logArea');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    const time = document.createElement('span');
+    time.className = 'log-time';
+    time.textContent = new Date().toLocaleTimeString('pt-BR');
+    entry.appendChild(time);
+    const text = document.createElement('span');
+    text.className = 'log-' + type;
+    text.textContent = message;
+    entry.appendChild(text);
+    area.appendChild(entry);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  // ---- UI Update ----
+
+  renderAll() {
+    this.updateStats();
+    this.renderTab('approved');
+    this.renderTab('ignored');
+    this.renderTab('duplicated');
+    this.renderTab('review');
+    this.updateControls();
+    this.updateExportButton();
+  }
+
+  updateStats() {
+    const s = this.state.stats;
+    const totalKw = this.state.keywords.length;
+    const done = this.state.completedKeywords.length;
+
+    document.getElementById('statKeywordIdx').textContent = `${done}/${totalKw}`;
+    document.getElementById('statFound').textContent = s.found;
+    document.getElementById('statApproved').textContent = s.approved;
+    document.getElementById('statIgnored').textContent = s.ignored;
+    document.getElementById('statDuplicated').textContent = s.duplicated;
+    document.getElementById('statReview').textContent = s.review;
+
+    document.getElementById('tabCountApproved').textContent = s.approved;
+    document.getElementById('tabCountIgnored').textContent = s.ignored;
+    document.getElementById('tabCountDuplicated').textContent = s.duplicated;
+    document.getElementById('tabCountReview').textContent = s.review;
+
+    const progress = totalKw > 0 ? Math.round((done / totalKw) * 100) : 0;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    if (this.state.status === 'running') {
+      const kw = this.state.keywords[this.state.currentKeywordIdx] || '';
+      document.getElementById('currentKeyword').textContent =
+        `Buscando: "${kw}" (offset: ${this.state.currentOffset})`;
+    } else if (this.state.status === 'paused') {
+      document.getElementById('currentKeyword').textContent = 'PAUSADO';
+    } else if (this.state.status === 'idle') {
+      document.getElementById('currentKeyword').textContent = 'Aguardando início...';
+    } else if (this.state.status === 'completed') {
+      document.getElementById('currentKeyword').textContent = 'Busca concluída!';
+    }
+  }
+
+  renderTab(tabName) {
+    const items = this.state[tabName] || [];
+    const tbody = document.getElementById('tbody' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    const empty = document.getElementById('empty' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+
+    if (!tbody) return;
+
+    if (items.length === 0) {
+      tbody.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    let html = '';
+    for (const item of items) {
+      if (tabName === 'approved') {
+        const visited = this.state.clickedLinks.has(item.jobUrl) ? 'style="color:purple"' : '';
+        html += `<tr>
+          <td><strong>${this.esc(item.name)}</strong></td>
+          <td>${this.esc(item.company || '')}</td>
+          <td>${this.esc(item.location || '')}</td>
+          <td><a href="${this.esc(item.jobUrl)}" target="_blank" class="job-link" data-url="${this.esc(item.jobUrl)}" ${visited}>Abrir</a></td>
+          <td><span class="tag tag-both">${this.esc(item.foundBy)}</span></td>
+          <td class="time-col">${formatDateTime(item.foundAt)}</td>
+        </tr>`;
+      } else if (tabName === 'ignored') {
+        html += `<tr>
+          <td>${this.esc(item.name)}</td>
+          <td>${this.esc(item.company || '')}</td>
+          <td><span class="tag tag-ignored">${this.esc(item.reason || '')}</span></td>
+          <td><a href="${this.esc(item.jobUrl)}" target="_blank" class="job-link">Abrir</a></td>
+          <td><span class="tag tag-ignored">${this.esc(item.foundBy)}</span></td>
+          <td class="time-col">${formatDateTime(item.foundAt)}</td>
+        </tr>`;
+      } else if (tabName === 'duplicated') {
+        html += `<tr>
+          <td>${this.esc(item.name)}</td>
+          <td>${this.esc(item.company || '')}</td>
+          <td><a href="${this.esc(item.jobUrl)}" target="_blank" class="job-link">Abrir</a></td>
+          <td><span class="tag tag-ignored">${this.esc(item.foundBy)}</span></td>
+          <td class="time-col">${formatDateTime(item.foundAt)}</td>
+        </tr>`;
+      } else if (tabName === 'review') {
+        html += `<tr>
+          <td><strong>${this.esc(item.name)}</strong></td>
+          <td>${this.esc(item.company || '')}</td>
+          <td><span class="tag tag-ignored">${this.esc(item.reason || '')}</span></td>
+          <td><a href="${this.esc(item.jobUrl)}" target="_blank" class="job-link">Abrir</a></td>
+          <td><span class="tag tag-ignored">${this.esc(item.foundBy)}</span></td>
+          <td class="time-col">${formatDateTime(item.foundAt)}</td>
+        </tr>`;
+      }
+    }
+    tbody.innerHTML = html;
+  }
+
+  esc(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  updateControls() {
+    const status = this.state.status;
+    document.getElementById('btnStart').disabled = status === 'running';
+    document.getElementById('btnPause').disabled = status !== 'running';
+    document.getElementById('btnContinue').disabled = status !== 'paused';
+    document.getElementById('btnStop').disabled = status === 'idle' || status === 'completed';
+  }
+
+  updateExportButton() {
+    document.getElementById('exportBtn').disabled = this.state.stats.approved === 0;
+  }
+
+  switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById('panel-' + tabName).classList.add('active');
+  }
+
+  // ---- Link tracking ----
+
+  addLinkClickListener() {
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('.job-link');
+      if (link) {
+        const url = link.getAttribute('data-url') || link.href;
+        if (url) {
+          this.state.clickedLinks.add(url);
+          this.saveState();
+          setTimeout(() => {
+            link.style.color = 'purple';
+          }, 50);
+        }
+      }
+    });
+
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.job-link').forEach(link => {
+        const url = link.getAttribute('data-url') || link.href;
+        if (url && this.state.clickedLinks.has(url)) {
+          link.style.color = 'purple';
+        }
+      });
+    });
+  }
+
+  // ---- Core Search ----
+
+  async searchJobs(keyword, offset) {
+    const url = `${API_BASE}?keyword=${encodeURIComponent(keyword)}&offset=${offset}&limit=${RESULTS_PER_PAGE}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status} - ${resp.statusText}`);
+    return resp.json();
+  }
+
+  async processKeyword(keyword) {
+    let offset = 0;
+    let total = 0;
+    let localTotal = 0;
+
+    try {
+      const firstPage = await this.searchJobs(keyword, 0);
+      total = firstPage.pagination?.total || 0;
+      localTotal = total;
+
+      if (total === 0) {
+        this.log(`"${keyword}": nenhum resultado.`, 'warn');
+        return 0;
+      }
+
+      this.log(`"${keyword}": ${total} vaga(s) encontrada(s).`, 'info');
+
+      for (const job of (firstPage.data || [])) {
+        if (!this._running) return localTotal;
+        while (this._paused && this._running) await sleep(200);
+        if (!this._running) return localTotal;
+        await this.processJob(job, keyword);
+        await sleep(DELAY_MS);
+      }
+
+      offset = RESULTS_PER_PAGE;
+      while (offset < total) {
+        if (!this._running) return localTotal;
+        while (this._paused && this._running) await sleep(200);
+        if (!this._running) return localTotal;
+
+        this.state.currentOffset = offset;
+        this.updateStats();
+
+        const page = await this.searchJobs(keyword, offset);
+        const jobs = page.data || [];
+        if (jobs.length === 0) break;
+
+        for (const job of jobs) {
+          if (!this._running) return localTotal;
+          while (this._paused && this._running) await sleep(200);
+          if (!this._running) return localTotal;
+          await this.processJob(job, keyword);
+          await sleep(DELAY_MS);
+        }
+
+        offset += RESULTS_PER_PAGE;
+        total = page.pagination?.total || total;
+      }
+
+      this.log(`"${keyword}": processada.`, 'success');
+      return total;
+    } catch (err) {
+      if (err.name === 'AbortError') return localTotal;
+      this.log(`"${keyword}": erro - ${err.message}`, 'error');
+      return localTotal;
+    }
+  }
+
+  async processJob(job, keyword) {
+    const jobId = getJobId(job);
+    const jobUrl = job.jobUrl || '';
+    const dedupKey = makeDedupKey(job);
+    const linkKey = makeDedupLinkKey(job);
+
+    if (this.state.seenIds.has(dedupKey) || (linkKey && this.state.visitedUrls.has(linkKey))) {
+      this.state.stats.duplicated++;
+      this.state.duplicated.push({
+        id: jobId,
+        name: job.name,
+        company: job.careerPageName || '',
+        jobUrl,
+        foundBy: keyword,
+        foundAt: nowISO()
+      });
+      this.saveState();
+      this.updateStats();
+      return;
+    }
+
+    this.state.seenIds.add(dedupKey);
+    if (linkKey) this.state.visitedUrls.add(linkKey);
+    this.state.visitedIds.add(jobId);
+    this.state.stats.found++;
+
+    const { verdict, reason } = classifyJob(job);
+
+    const entry = {
+      id: jobId,
+      name: job.name,
+      company: job.careerPageName || '',
+      location: getWorkplaceLabel(job),
+      jobUrl,
+      foundBy: keyword,
+      foundAt: nowISO(),
+      reason: reason || ''
+    };
+
+    if (verdict === 'approved') {
+      this.state.approved.push(entry);
+      this.state.stats.approved++;
+    } else if (verdict === 'ignored') {
+      this.state.ignored.push(entry);
+      this.state.stats.ignored++;
+    } else {
+      this.state.review.push(entry);
+      this.state.stats.review++;
+    }
+
+    this.state.currentOffset++;
+    this.saveState();
+    this.renderAll();
+  }
+
+  // ---- Flow Control ----
+
+  async startSearch() {
+    // Save keywords from UI
+    const uiKeywords = this.getKeywordsFromUI();
+    if (uiKeywords.length === 0) {
+      this.log('Adicione pelo menos uma palavra-chave.', 'error');
+      return;
+    }
+    this.state.keywords = uiKeywords;
+
+    this.state.status = 'running';
+    this._running = true;
+    this._paused = false;
+    this._stopped = false;
+    this.state.currentKeywordIdx = 0;
+    this.state.completedKeywords = [];
+    this.state.seenIds = new Set();
+    this.state.visitedUrls = new Set();
+
+    // Preserve existing clicked links
+    const existingClicked = new Set(this.state.clickedLinks);
+
+    this.state.approved = [];
+    this.state.ignored = [];
+    this.state.duplicated = [];
+    this.state.review = [];
+    this.state.stats = { found: 0, approved: 0, ignored: 0, duplicated: 0, review: 0 };
+    this.state.clickedLinks = existingClicked;
+    this.saveState();
+    this.renderAll();
+
+    this.log(`Iniciando busca com ${uiKeywords.length} palavra(s)-chave...`, 'info');
+
+    for (let i = 0; i < uiKeywords.length; i++) {
+      if (!this._running) break;
+      while (this._paused && this._running) await sleep(200);
+      if (!this._running) break;
+
+      this.state.currentKeywordIdx = i;
+      this.state.currentOffset = 0;
+      this.updateStats();
+
+      const kw = uiKeywords[i];
+      await this.processKeyword(kw);
+
+      if (this._running && !this._paused) {
+        this.state.completedKeywords.push(kw);
+        this.updateStats();
+      }
+    }
+
+    if (this._running && !this._paused) {
+      this.state.status = 'completed';
+      this._running = false;
+      this.log('Busca concluída!', 'success');
+      this.updateControls();
+      this.updateStats();
+      this.saveState();
+    }
+  }
+
+  pauseSearch() {
+    if (this.state.status !== 'running') return;
+    this._paused = true;
+    this.state.status = 'paused';
+    this.log('Busca pausada.', 'warn');
+    this.updateControls();
+    this.updateStats();
+    this.saveState();
+  }
+
+  continueSearch() {
+    if (this.state.status !== 'paused') return;
+    this._paused = false;
+    this.state.status = 'running';
+    this.log('Retomando busca...', 'info');
+    this.updateControls();
+    this.updateStats();
+
+    if (!this._running) {
+      this._running = true;
+      this._stopped = false;
+      this.continueExecution();
+    }
+  }
+
+  async continueExecution() {
+    const uiKeywords = this.getKeywordsFromUI();
+    this.state.keywords = uiKeywords;
+
+    for (let i = this.state.currentKeywordIdx; i < uiKeywords.length; i++) {
+      if (!this._running) break;
+      while (this._paused && this._running) await sleep(200);
+      if (!this._running) break;
+
+      this.state.currentKeywordIdx = i;
+      this.state.currentOffset = 0;
+      this.updateStats();
+
+      const kw = uiKeywords[i];
+      if (this.state.completedKeywords.includes(kw)) continue;
+      await this.processKeyword(kw);
+
+      if (this._running && !this._paused) {
+        this.state.completedKeywords.push(kw);
+        this.updateStats();
+      }
+    }
+
+    if (this._running && !this._paused) {
+      this.state.status = 'completed';
+      this._running = false;
+      this.log('Busca concluída!', 'success');
+      this.updateControls();
+      this.updateStats();
+      this.saveState();
+    }
+  }
+
+  stopSearch() {
+    this._running = false;
+    this._paused = false;
+    this._stopped = true;
+    this.state.status = 'idle';
+    this.log('Busca interrompida pelo usuário.', 'warn');
+    this.updateControls();
+    this.updateStats();
+    this.saveState();
+  }
+
+  // ---- Export CSV ----
+
+  exportCSV() {
+    const approved = this.state.approved;
+    if (approved.length === 0) {
+      this.log('Nenhuma vaga aprovada para exportar.', 'warn');
+      return;
+    }
+
+    const BOM = '\uFEFF';
+    const header = 'Nome da Vaga;Empresa;Local/Modalidade;Link;Palavra-chave;Data/Hora';
+    const rows = approved.map(j =>
+      `"${(j.name || '').replace(/"/g, '""')}";"${(j.company || '').replace(/"/g, '""')}";"${(j.location || '').replace(/"/g, '""')}";"${j.jobUrl}";"${j.foundBy}";"${formatDateTime(j.foundAt)}"`
+    );
+
+    const csv = BOM + header + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `buscatech_vagas_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    this.log(`Exportado ${rows.length} vaga(s) para CSV.`, 'success');
+  }
+
+  // ---- Clear ----
+
+  clearAll() {
+    if (!confirm('Tem certeza? Todos os dados serão perdidos.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    this.state.approved = [];
+    this.state.ignored = [];
+    this.state.duplicated = [];
+    this.state.review = [];
+    this.state.stats = { found: 0, approved: 0, ignored: 0, duplicated: 0, review: 0 };
+    this.state.clickedLinks = new Set();
+    this.state.seenIds = new Set();
+    this.state.visitedIds = new Set();
+    this.state.visitedUrls = new Set();
+    this.state.completedKeywords = [];
+    this.state.currentKeywordIdx = 0;
+    this.state.status = 'idle';
+    this._running = false;
+    this._paused = false;
+    this.renderAll();
+    document.getElementById('logArea').innerHTML = '';
+    this.log('Dados limpos.');
+  }
+}
+
+// Initialize
+const app = new GupySearchApp();
+</script>
+</body>
+</html>
